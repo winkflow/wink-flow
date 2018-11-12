@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: wink-service
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:wink_flow}?useUnicode=true&characterEncoding=utf-8&useSSL=false&autoReconnect=true&tcpKeepAlive=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:anywhere}
+    hikari:
+      connection-test-query: SELECT 1 FROM DUAL
+      minimum-idle: 1
+      maxLifetime: 1765000
+      maximum-pool-size: ${MAXIMUM-POOL-SIZE:20}
+
+mybatis:
+  mapper-locations: classpath*:mapper/*Mapper.xml
+  type-aliases-package: >
+    com.wink.model

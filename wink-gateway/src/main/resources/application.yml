@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: wink-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+    zookeeper:
+      connect-string: localhost:2181
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    io.lettuce: DEBUG
+    reactor.ipc.netty: DEBUG
+    redisratelimiter: DEBUG
+    com.wink.gateway: DEBUG

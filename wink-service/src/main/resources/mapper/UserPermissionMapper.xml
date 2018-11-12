@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="UserPermission">
+    <resultMap id="baseMap" type="UserPermission">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+
+        <result column="permission" property="permission" jdbcType="VARCHAR"
+                typeHandler="com.wink.support.JsonTypeHandler"/>
+
+        <result column="project_id" property="projectId"/>
+
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <sql id="tb">
+        wink_user_permission
+    </sql>
+
+    <sql id="cols_all">
+        id,
+        <include refid="cols_exclude_id"/>
+    </sql>
+
+    <sql id="cols_exclude_id">
+        `user_id`, `permission`, `project_id`, `created_at`, `updated_at`,`is_deleted`
+    </sql>
+
+    <sql id="vals">
+        #{userId}, #{permission}, #{projectId}, now(), now(),false
+    </sql>
+
+    <sql id="criteria">
+        is_deleted=false
+        <if test="id != null">AND id = #{id}</if>
+        <if test="userId != null">AND user_id = #{userId}</if>
+        <if test="projectId != null">AND project_id = #{projectId}</if>
+
+    </sql>
+
+
+    <update id="update" parameterType="User">
+        UPDATE
+        <include refid="tb"/>
+        SET
+        <if test="userId != null">user_id = #{userId},</if>
+        <if test="permission != null">permission = #{permission},</if>
+        <if test="project_id != null">projectId = #{projectId},</if>
+
+        updated_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <insert id="create" parameterType="User" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO
+        <include refid="tb"/>
+        (<include refid="cols_exclude_id"/>)
+        VALUES
+        (<include refid="vals"/>)
+    </insert>
+
+    <select id="find" parameterType="map" resultMap="baseMap">
+        SELECT
+        <include refid="cols_all"/>
+        FROM
+        <include refid="tb"/>
+        <where>
+            <include refid="criteria"/>
+        </where>
+    </select>
+
+    <select id="findById" parameterType="long" resultMap="baseMap">
+        SELECT
+        <include refid="cols_all"/>
+        FROM
+        <include refid="tb"/>
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByIds" parameterType="list" resultMap="baseMap">
+        SELECT
+        <include refid="cols_all"/>
+        FROM
+        <include refid="tb"/>
+        WHERE
+        <foreach collection="list" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="count" parameterType="map" resultType="long">
+        SELECT count(id)
+        FROM
+        <include refid="tb"/>
+        <where>
+            <include refid="criteria"/>
+        </where>
+
+    </select>
+
+
+    <select id="paging" parameterType="map" resultMap="baseMap">
+        SELECT
+        <include refid="cols_all"/>
+        FROM
+        <include refid="tb"/>
+        <where>
+            <include refid="criteria"/>
+        </where>
+        <if test="orderBy != null">
+            ORDER BY `${orderBy}`
+        </if>
+        <if test="orderBy != null and orderDesc">
+            DESC
+        </if>
+        <if test="orderBy == null">
+            ORDER BY id DESC
+        </if>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="list" parameterType="map" resultMap="baseMap">
+        SELECT
+        <include refid="cols_all"/>
+        FROM
+        <include refid="tb"/>
+        <where>
+            <include refid="criteria"/>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM
+        <include refid="tb"/>
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
