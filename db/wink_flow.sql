@@ -11,7 +11,7 @@
  Target Server Version : 50721
  File Encoding         : 65001
 
- Date: 06/11/2018 23:23:05
+ Date: 13/11/2018 22:28:25
 */
 
 SET NAMES utf8mb4;
@@ -31,7 +31,16 @@ CREATE TABLE `wink_resource_permission` (
   `updated_at` datetime NOT NULL,
   `is_deleted` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- ----------------------------
+-- Records of wink_resource_permission
+-- ----------------------------
+BEGIN;
+INSERT INTO `wink_resource_permission` VALUES (1, NULL, '/actuator/**', NULL, '[\"PLAT_ADMIN\"]', '2018-11-07 20:54:12', '2018-11-07 20:54:15', 0);
+INSERT INTO `wink_resource_permission` VALUES (2, 1, '/actuator/gateway/routes', NULL, '[\"PLAT_ROUTE_MANAGER\"]', '2018-11-07 20:54:12', '2018-11-07 20:54:15', 0);
+INSERT INTO `wink_resource_permission` VALUES (3, NULL, '/wink-server/status', NULL, '[]', '2018-11-13 21:55:30', '2018-11-13 21:55:36', 0);
+COMMIT;
 
 -- ----------------------------
 -- Table structure for wink_user
@@ -46,13 +55,14 @@ CREATE TABLE `wink_user` (
   `updated_at` datetime NOT NULL,
   `is_deleted` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- ----------------------------
 -- Records of wink_user
 -- ----------------------------
 BEGIN;
 INSERT INTO `wink_user` VALUES (1, 'admin', '$2a$04$fkZvovrUnlceqHQN1iWws.IpGC.IdMHuEMhTz3wekPGn.pN.t2NI2', 'admin', '2018-11-05 13:58:42', '2018-11-05 13:58:45', 0);
+INSERT INTO `wink_user` VALUES (2, 'user', '$2a$04$fkZvovrUnlceqHQN1iWws.IpGC.IdMHuEMhTz3wekPGn.pN.t2NI2', 'admin', '2018-11-05 13:58:42', '2018-11-05 13:58:45', 0);
 COMMIT;
 
 -- ----------------------------
@@ -68,13 +78,14 @@ CREATE TABLE `wink_user_permission` (
   `updated_at` datetime NOT NULL,
   `is_deleted` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- ----------------------------
 -- Records of wink_user_permission
 -- ----------------------------
 BEGIN;
-INSERT INTO `wink_user_permission` VALUES (1, 1, NULL, '[\"GET_ACTUATOR\"]', '2018-11-05 14:00:47', '2018-11-05 14:00:54', 0);
+INSERT INTO `wink_user_permission` VALUES (1, 1, NULL, '[\"PLAT_ADMIN\"]', '2018-11-05 14:00:47', '2018-11-05 14:00:54', 0);
+INSERT INTO `wink_user_permission` VALUES (2, 2, NULL, '[\"PLAT_ROUTE_MANAGER\"]', '2018-11-09 14:14:44', '2018-11-09 14:14:48', 0);
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
