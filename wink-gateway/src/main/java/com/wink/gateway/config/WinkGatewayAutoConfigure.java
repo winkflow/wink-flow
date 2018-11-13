@@ -62,10 +62,15 @@ public class WinkGatewayAutoConfigure {
                 JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ArrayList.class, ResourcePermissionDTO.class);
                 List<ResourcePermissionDTO> resourcePermissions = objectMapper.readValue(permissionString, javaType);
                 ServerHttpSecurity.AuthorizeExchangeSpec authorizeExchangeSpec = http.authorizeExchange();
-                resourcePermissions.forEach(resourcePermission ->
-                        authorizeExchangeSpec.pathMatchers(resourcePermission.getPath())
-                                .access((authenticationMono, authorizationContext)
-                                        -> authenticated(authenticationMono, resourcePermission.getPermission())));
+                resourcePermissions.forEach(resourcePermission -> {
+                    final Set<String> permission = resourcePermission.getPermission();
+                    if (permission == null || permission.isEmpty()) {
+                        authorizeExchangeSpec.pathMatchers(resourcePermission.getPath()).permitAll();
+                        return;
+                    }
+                    authorizeExchangeSpec.pathMatchers(resourcePermission.getPath())
+                            .access((authenticationMono, authorizationContext) -> authenticated(authenticationMono, permission));
+                });
             }
         } catch (IOException e) {
             log.error(e);
