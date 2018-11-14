@@ -1,12 +1,18 @@
 package com.wink.support;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response<T> implements Serializable {
     private static final long serialVersionUID = -1872012513260068707L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(Response.class);
 
     private boolean success;
 
@@ -64,5 +70,14 @@ public class Response<T> implements Serializable {
         resp.setErrorCode(errorCode);
         resp.setErrorMsg(errorMsg);
         return resp;
+    }
+
+    public String toJson() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            LOG.error("transfer Response to json error", e);
+        }
+        return "{}";
     }
 }

@@ -1,6 +1,6 @@
 server:
   port: 9091
-  version: 1.0
+  version:
 spring:
   application:
     name: wink-server
