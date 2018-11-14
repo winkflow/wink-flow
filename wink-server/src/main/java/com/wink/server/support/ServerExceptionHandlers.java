@@ -1,6 +1,6 @@
 package com.wink.server.support;
 
-import com.wink.support.BizException;
+import com.wink.support.BusinessException;
 import com.wink.support.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
@@ -28,7 +28,7 @@ public class ServerExceptionHandlers implements ErrorWebExceptionHandler {
         response.setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         String errorCode;
-        if (t instanceof BizException) {
+        if (t instanceof BusinessException) {
             errorCode = t.getMessage();
         } else {
             errorCode = SERVER_UNAVAIABLE;

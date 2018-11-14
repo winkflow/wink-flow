@@ -1,6 +1,6 @@
 package com.wink.server.controller;
 
-import com.wink.support.BizException;
+import com.wink.support.BusinessException;
 import com.wink.support.Response;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,7 @@ public class ServerStatusController {
     @GetMapping("/status")
     public Mono<Response<String>> getApi() {
         if (StringUtils.isEmpty(serverVersion))
-            throw new BizException(SERVER_UN_KNOWN_VERSION);
+            throw new BusinessException(SERVER_UN_KNOWN_VERSION);
         return Mono.just(Response.ok(serverVersion));
     }
 
