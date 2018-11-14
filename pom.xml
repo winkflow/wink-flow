@@ -33,6 +33,7 @@
         <spring-cloud.version>Finchley.SR1</spring-cloud.version>
         <zk-version>3.4.11</zk-version>
         <boot.version>2.0.6.RELEASE</boot.version>
+        <slf4j.version>1.7.25</slf4j.version>
     </properties>
 
     <dependencies>
@@ -41,6 +42,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <version>${boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
 

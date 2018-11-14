@@ -19,10 +19,6 @@ public class RecordSessionFilter implements WebFilter {
             String sessionId = webSession.getId();
 
             System.out.println(sessionId + ": " + userId);
-            System.out.println(sessionId + ": " + userId);
-            System.out.println(sessionId + ": " + userId);
-            System.out.println(sessionId + ": " + userId);
-            System.out.println(sessionId + ": " + userId);
             return Mono.just("ok");
         })).then(chain.filter(exchange));
     }

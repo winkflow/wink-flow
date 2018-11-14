@@ -1,8 +1,7 @@
 package com.wink.support;
 
-import com.google.common.collect.Maps;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.session.SqlSession;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.ParameterizedType;
@@ -86,6 +85,10 @@ public abstract class MyBatisDao<T> {
         return this.sqlSession.selectOne(this.sqlId("findById"), id);
     }
 
+    public T findOne(T t) {
+        return this.sqlSession.selectOne(this.sqlId("find"), t);
+    }
+
     public List<T> findByIds(List<Long> ids) {
         return (ids == null || ids.isEmpty()) ? Collections.emptyList() : this.sqlSession.selectList(this.sqlId("findByIds"), ids);
     }
@@ -106,54 +109,32 @@ public abstract class MyBatisDao<T> {
         return this.sqlSession.selectList(this.sqlId("list"), criteria);
     }
 
-    public Paging<T> paging(Integer offset, Integer limit) {
-        return this.paging(offset, limit, (Map) (new HashMap()));
+    public Paging<T> paging(Integer pageNo, Integer pageSize) {
+        return this.paging(pageNo, pageSize, (new HashMap()));
     }
 
-    public Paging<T> paging(Integer offset, Integer limit, T criteria) {
-        Map<String, Object> params = Maps.newHashMap();
+    public Paging<T> paging(Integer pageNo, Integer pageSize, T criteria) {
+        Map<String, Object> params = new HashMap<>();
         if (criteria != null) {
             final ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> objMap = objectMapper.convertValue(criteria, Map.class);
             params.putAll(objMap);
         }
 
-        Long total = (Long) this.sqlSession.selectOne(this.sqlId("count"), criteria);
-        if (total <= 0L) {
-            return new Paging(0L, Collections.emptyList());
-        } else {
-            params.put("offset", offset);
-            params.put("limit", limit);
-            List<T> datas = this.sqlSession.selectList(this.sqlId("paging"), params);
-            return new Paging(total, datas);
-        }
+        return this.paging(pageNo, pageSize, params);
     }
 
-    public Paging<T> paging(Integer offset, Integer limit, Map<String, Object> criteria) {
+    public Paging<T> paging(Integer pageNo, Integer pageSize, Map<String, Object> criteria) {
         if (criteria == null) {
-            criteria = Maps.newHashMap();
+            criteria = new HashMap<>();
         }
 
-        Long total = (Long) this.sqlSession.selectOne(this.sqlId("count"), criteria);
+        Long total = this.sqlSession.selectOne(this.sqlId("count"), criteria);
         if (total <= 0L) {
             return new Paging(0L, Collections.emptyList());
         } else {
-            ((Map) criteria).put("offset", offset);
-            ((Map) criteria).put("limit", limit);
-            List<T> datas = this.sqlSession.selectList(this.sqlId("paging"), criteria);
-            return new Paging(total, datas);
-        }
-    }
-
-    public Paging<T> paging(Map<String, Object> criteria) {
-        if (criteria == null) {
-            criteria = Maps.newHashMap();
-        }
-
-        Long total = (Long) this.sqlSession.selectOne(this.sqlId("count"), criteria);
-        if (total <= 0L) {
-            return new Paging(0L, Collections.emptyList());
-        } else {
+            criteria.put("offset", (pageNo - 1) * pageSize);
+            criteria.put("limit", pageSize);
             List<T> datas = this.sqlSession.selectList(this.sqlId("paging"), criteria);
             return new Paging(total, datas);
         }

@@ -1,7 +1,7 @@
 package com.wink.support;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.util.CollectionUtils;
 
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BeanUtil {
-    private static final Log log = LogFactory.getLog(BeanUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BeanUtil.class);
 
     public static Map<String, Object> obj2Map(Object obj) {
         return obj2Map(obj, false);
@@ -34,17 +34,19 @@ public class BeanUtil {
                     }
                 }
             } catch (Exception e) {
-                log.error(e);
+                LOG.error("obj2Map error", e);
             }
         }
         return map;
     }
 
     /**
-     * 对象属性之间的copy
+     * copy properties from source to target
      *
      * @param source
      * @param target
+     * @param <T>
+     * @return
      */
     public static <T> T copyProperties(Object source, T target) {
         if (source == null || target == null) {
@@ -54,7 +56,7 @@ public class BeanUtil {
             BeanCopier copier = BeanCopier.create(source.getClass(), target.getClass(), false);
             copier.copy(source, target, null);
         } catch (Exception e) {
-            log.error(e);
+            LOG.error("copyProperties error", e);
         }
         return target;
     }
@@ -71,7 +73,7 @@ public class BeanUtil {
                 target.add(t);
             }
         } catch (Exception e) {
-            log.error(e);
+            LOG.error("copyListBean error", e);
         }
         return target;
     }
@@ -90,7 +92,7 @@ public class BeanUtil {
             }
             return target;
         } catch (Exception e) {
-            log.error(e);
+            LOG.error("copyList error", e);
         }
         return new ArrayList<>();
     }

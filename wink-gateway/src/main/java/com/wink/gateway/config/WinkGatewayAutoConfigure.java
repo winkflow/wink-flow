@@ -3,8 +3,6 @@ package com.wink.gateway.config;
 import com.wink.dto.ResourcePermissionDTO;
 import io.wink.tool.autoconfigure.SofaRpcAutoConfiguration;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +26,6 @@ import java.util.Set;
 @Configuration
 @EnableWebFluxSecurity
 public class WinkGatewayAutoConfigure {
-    private static final Log log = LogFactory.getLog(WinkGatewayAutoConfigure.class);
-
     @Autowired
     ReactiveRedisTemplate<String, String> redisTemplate;
 
@@ -54,26 +50,22 @@ public class WinkGatewayAutoConfigure {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        try {
-            final String permissionString = redisTemplate.opsForValue().get("resource:permissions").block();
-            if (StringUtils.isNotEmpty(permissionString)) {
-                final ObjectMapper objectMapper = new ObjectMapper();
-                JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ArrayList.class, ResourcePermissionDTO.class);
-                List<ResourcePermissionDTO> resourcePermissions = objectMapper.readValue(permissionString, javaType);
-                ServerHttpSecurity.AuthorizeExchangeSpec authorizeExchangeSpec = http.authorizeExchange();
-                resourcePermissions.forEach(resourcePermission -> {
-                    final Set<String> permission = resourcePermission.getPermission();
-                    if (permission == null || permission.isEmpty()) {
-                        authorizeExchangeSpec.pathMatchers(resourcePermission.getPath()).permitAll();
-                        return;
-                    }
-                    authorizeExchangeSpec.pathMatchers(resourcePermission.getPath())
-                            .access((authenticationMono, authorizationContext) -> authenticated(authenticationMono, permission));
-                });
-            }
-        } catch (IOException e) {
-            log.error(e);
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws IOException {
+        final String permissionString = redisTemplate.opsForValue().get("resource:permissions").block();
+        if (StringUtils.isNotEmpty(permissionString)) {
+            final ObjectMapper objectMapper = new ObjectMapper();
+            JavaType javaType = objectMapper.getTypeFactory().constructParametricType(ArrayList.class, ResourcePermissionDTO.class);
+            List<ResourcePermissionDTO> resourcePermissions = objectMapper.readValue(permissionString, javaType);
+            ServerHttpSecurity.AuthorizeExchangeSpec authorizeExchangeSpec = http.authorizeExchange();
+            resourcePermissions.forEach(resourcePermission -> {
+                final Set<String> permission = resourcePermission.getPermission();
+                if (permission == null || permission.isEmpty()) {
+                    authorizeExchangeSpec.pathMatchers(resourcePermission.getPath()).permitAll();
+                    return;
+                }
+                authorizeExchangeSpec.pathMatchers(resourcePermission.getPath())
+                        .access((authenticationMono, authorizationContext) -> authenticated(authenticationMono, permission));
+            });
         }
         http.authorizeExchange().anyExchange().authenticated().and()
                 .httpBasic().and()
