@@ -1,6 +1,7 @@
 package com.wink.gateway.config;
 
 import com.wink.dto.ResourcePermissionDTO;
+import com.wink.gateway.support.GatewayAccessDeniedHandler;
 import io.wink.tool.autoconfigure.SofaRpcAutoConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -70,6 +71,7 @@ public class WinkGatewayAutoConfigure {
         http.authorizeExchange().anyExchange().authenticated().and()
                 .httpBasic().and()
                 .formLogin();
+        http.exceptionHandling().accessDeniedHandler(new GatewayAccessDeniedHandler());
         return http.build();
     }
 
