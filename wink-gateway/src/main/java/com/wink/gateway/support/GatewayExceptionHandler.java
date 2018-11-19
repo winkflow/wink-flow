@@ -1,6 +1,8 @@
 package com.wink.gateway.support;
 
 import com.wink.support.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,10 +13,13 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class GatewayExceptionHandler implements ErrorWebExceptionHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(GatewayExceptionHandler.class);
+
     private static final Response SERVER_ERROR_RESPONSE = Response.fail("9001", "Service Unavailable");
 
     @Override
     public Mono<Void> handle(ServerWebExchange serverWebExchange, Throwable throwable) {
+        LOG.error("gateway exception:", throwable);
         final ServerHttpResponse response = serverWebExchange.getResponse();
         response.setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);

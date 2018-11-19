@@ -10,13 +10,13 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 public class GatewayAccessDeniedHandler implements ServerAccessDeniedHandler {
-    private static final Response AUTH_DENIED_RESPONSE = Response.fail("9002", "Access Denied");
 
     @Override
     public Mono<Void> handle(ServerWebExchange serverWebExchange, AccessDeniedException denied) {
         final ServerHttpResponse response = serverWebExchange.getResponse();
-        response.setStatusCode(HttpStatus.SERVICE_UNAVAILABLE);
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        return response.writeWith(Mono.just(response.bufferFactory().wrap(AUTH_DENIED_RESPONSE.toJson().getBytes())));
+        return response.writeWith(Mono.just(response.bufferFactory()
+                .wrap(Response.fail("9002", denied.getMessage()).toJson().getBytes())));
     }
 }

@@ -1,6 +1,8 @@
 package com.wink.gateway.config;
 
 import com.wink.dto.ResourcePermissionDTO;
+import com.wink.gateway.filter.LoginWebFilter;
+import com.wink.gateway.service.ReactiveUserDetailsServiceImpl;
 import com.wink.gateway.support.GatewayAccessDeniedHandler;
 import io.wink.tool.autoconfigure.SofaRpcAutoConfiguration;
 import org.apache.commons.lang.StringUtils;
@@ -10,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -30,6 +34,9 @@ public class WinkGatewayAutoConfigure {
     @Autowired
     ReactiveRedisTemplate<String, String> redisTemplate;
 
+    @Autowired
+    ReactiveUserDetailsServiceImpl userDetailsService;
+
     @Bean
     public SofaRpcAutoConfiguration sofaRpcAutoConfiguration() {
         return new SofaRpcAutoConfiguration();
@@ -45,7 +52,7 @@ public class WinkGatewayAutoConfigure {
 
             @Override
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
+                return rawPassword.toString().equals(encodedPassword);
             }
         };
     }
@@ -68,9 +75,10 @@ public class WinkGatewayAutoConfigure {
                         .access((authenticationMono, authorizationContext) -> authenticated(authenticationMono, permission));
             });
         }
-        http.authorizeExchange().anyExchange().authenticated().and()
-                .httpBasic().and()
-                .formLogin();
+        http.authorizeExchange().pathMatchers("/login").permitAll()
+                .and().authorizeExchange().anyExchange().authenticated().and()
+                .addFilterAt(new LoginWebFilter(authenticationManager()), SecurityWebFiltersOrder.AUTHENTICATION)
+                .csrf().disable();
         http.exceptionHandling().accessDeniedHandler(new GatewayAccessDeniedHandler());
         return http.build();
     }
@@ -86,4 +94,12 @@ public class WinkGatewayAutoConfigure {
                 )
                 .map(granted -> new AuthorizationDecision(granted));
     }
+
+    @Bean
+    public UserDetailsRepositoryReactiveAuthenticationManager authenticationManager() {
+        final UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
+        authenticationManager.setPasswordEncoder(customPasswordEncoder());
+        return authenticationManager;
+    }
+
 }
