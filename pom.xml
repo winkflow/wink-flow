@@ -12,6 +12,7 @@
         <module>wink-server</module>
         <module>wink-api</module>
         <module>wink-service</module>
+        <module>wink-core</module>
     </modules>
 
     <packaging>pom</packaging>
