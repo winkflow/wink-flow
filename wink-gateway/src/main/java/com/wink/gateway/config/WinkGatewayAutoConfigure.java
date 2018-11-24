@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -58,7 +59,7 @@ public class WinkGatewayAutoConfigure {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws IOException {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, ServerCodecConfigurer serverCodecConfigurer) throws IOException {
         final String permissionString = redisTemplate.opsForValue().get("resource:permissions").block();
         if (StringUtils.isNotEmpty(permissionString)) {
             final ObjectMapper objectMapper = new ObjectMapper();
@@ -77,7 +78,7 @@ public class WinkGatewayAutoConfigure {
         }
         http.authorizeExchange().pathMatchers("/login").permitAll()
                 .and().authorizeExchange().anyExchange().authenticated().and()
-                .addFilterAt(new LoginWebFilter(authenticationManager()), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(new LoginWebFilter(authenticationManager(), serverCodecConfigurer), SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf().disable();
         http.exceptionHandling().accessDeniedHandler(new GatewayAccessDeniedHandler());
         return http.build();
