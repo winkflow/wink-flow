@@ -4,6 +4,7 @@ import com.wink.dto.ResourcePermissionDTO;
 import com.wink.gateway.filter.LoginWebFilter;
 import com.wink.gateway.service.ReactiveUserDetailsServiceImpl;
 import com.wink.gateway.support.GatewayAccessDeniedHandler;
+import com.wink.gateway.support.GatewayAuthenticationEntryPoint;
 import io.wink.tool.autoconfigure.SofaRpcAutoConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -80,7 +81,9 @@ public class WinkGatewayAutoConfigure {
                 .and().authorizeExchange().anyExchange().authenticated().and()
                 .addFilterAt(new LoginWebFilter(authenticationManager(), serverCodecConfigurer), SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf().disable();
-        http.exceptionHandling().accessDeniedHandler(new GatewayAccessDeniedHandler());
+        final ServerHttpSecurity.ExceptionHandlingSpec exceptionHandlingSpec = http.exceptionHandling();
+        exceptionHandlingSpec.accessDeniedHandler(new GatewayAccessDeniedHandler());
+        exceptionHandlingSpec.authenticationEntryPoint(new GatewayAuthenticationEntryPoint());
         return http.build();
     }
 
