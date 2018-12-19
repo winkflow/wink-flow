@@ -18,7 +18,7 @@ public class LoginWebFilter extends AuthenticationWebFilter {
     public LoginWebFilter(ReactiveAuthenticationManager authenticationManager, ServerCodecConfigurer serverCodecConfigurer) {
         super(authenticationManager);
         setRequiresAuthenticationMatcher(
-                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/login")
+                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/api/login")
         );
         setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
         setAuthenticationConverter(new ServerBodyAuthenticationConverter(serverCodecConfigurer));

@@ -76,7 +76,7 @@ public class WinkGatewayAutoConfigure {
                         .access((authenticationMono, authorizationContext) -> authenticated(authenticationMono, permission));
             });
         }
-        http.authorizeExchange().pathMatchers("/login").permitAll()
+        http.authorizeExchange().pathMatchers("/api/login").permitAll()
                 .and().authorizeExchange().anyExchange().authenticated().and()
                 .addFilterAt(new LoginWebFilter(authenticationManager(), serverCodecConfigurer), SecurityWebFiltersOrder.AUTHENTICATION)
                 .csrf().disable();
