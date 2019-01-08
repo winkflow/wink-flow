@@ -6,6 +6,7 @@ import com.wink.gateway.service.ReactiveUserDetailsServiceImpl;
 import com.wink.gateway.support.GatewayAccessDeniedHandler;
 import com.wink.gateway.support.GatewayAuthenticationEntryPoint;
 import io.wink.tool.autoconfigure.SofaRpcAutoConfiguration;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
@@ -20,7 +21,6 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
@@ -49,7 +49,7 @@ public class WinkGatewayAutoConfigure {
         return new PasswordEncoder() {
             @Override
             public String encode(CharSequence rawPassword) {
-                return BCrypt.hashpw(rawPassword.toString(), BCrypt.gensalt(4));
+                return DigestUtils.sha1Hex(rawPassword.toString());
             }
 
             @Override
